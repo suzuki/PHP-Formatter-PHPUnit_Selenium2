@@ -9,7 +9,7 @@ These codes are inspire from [Webdriver-PHP-Formatter](https://github.com/jupete
 
 
 ### Build
-- Build xpi file.
+Build xpi file.
 
 	$ make
 
@@ -29,3 +29,7 @@ These codes are inspire from [Webdriver-PHP-Formatter](https://github.com/jupete
 1. Run your testcase.
 
 	$ phpunit --colors YOUR_TEST_CASE.php
+
+
+## License
+Apache License 2.0
