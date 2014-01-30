@@ -212,6 +212,15 @@ options.header =
 
 options.footer =
     indents(1) + "}\n"
+    + indents(1) + "/**"
+    + indents(1) + " * Close the current window."
+    + indents(1) + " *"
+    + indents(1) + " * @return WebDriver The current instance."
+    + indents(1) + " */"
+    + indents(1) + "public function tearDown()"
+    + indents(1) + "{"
+    + indents(2) + "$this->webDriver->close();"
+    + indents(1) + "}"
     + "\n"
     + "}\n";
 
