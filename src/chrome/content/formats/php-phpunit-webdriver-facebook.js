@@ -182,7 +182,7 @@ this.options = {
     environment: '*firefox',
     extendedClass: 'PHPUnit_Framework_TestCase',
     remoteWebDriver: 'http://localhost:4444/wd/hub',
-    indent: '4',
+    indent: '2',
     initialIndents: '2',
     showSelenese: 'true',
     defaultExtension: 'php'
@@ -198,9 +198,11 @@ options.header =
     + indents(1) + " */\n"
     + indents(1) + "public function setUp()\n"
     + indents(1) + "{\n"
-    + indents(2) + "\$capabilities = array(\WebDriverCapabilityType::BROWSER_NAME => '${environment}');\n"
-    + indents(2) + "${receiver} = RemoteWebDriver::create('${remoteWebDriver}', \$capabilities);\n"
-    + indents(2) + "\$this->baseUrl = '${baseURL}';\n"
+    + indents(2) + "$this->webDriver = RemoteWebDriver::create("
+    + indents(3) + "$_SERVER['SELENIUM']['HUB'],"
+    + indents(3) + "$_SERVER['SELENIUM']['CAPABILITIES']"
+    + indents(2) + ");"
+    + indents(2) + "$this->baseUrl = $_SERVER['SELENIUM']['BASE_URL'];"
     + indents(1) + "}\n"
     + indents(0) + "\n"
     + indents(1) + "/**\n"
@@ -212,15 +214,15 @@ options.header =
 
 options.footer =
     indents(1) + "}\n"
-    + indents(1) + "/**"
-    + indents(1) + " * Close the current window."
-    + indents(1) + " *"
-    + indents(1) + " * @return WebDriver The current instance."
-    + indents(1) + " */"
-    + indents(1) + "public function tearDown()"
-    + indents(1) + "{"
-    + indents(2) + "$this->webDriver->close();"
-    + indents(1) + "}"
+    + indents(1) + "/**\n"
+    + indents(1) + " * Close the current window.\n"
+    + indents(1) + " *\n"
+    + indents(1) + " * @return WebDriver The current instance.\n"
+    + indents(1) + " */\n"
+    + indents(1) + "public function tearDown()\n"
+    + indents(1) + "{\n"
+    + indents(2) + "$this->webDriver->close();\n"
+    + indents(1) + "}\n"
     + "\n"
     + "}\n";
 
@@ -363,7 +365,7 @@ WDAPI.Element.prototype.select = function(label) {
 };
 
 WDAPI.Element.prototype.setValue = function(value) {
-    return this.ref + "->value(" + xlateArgument(value) + ")";
+    return this.ref + "->sendKeys(" + xlateArgument(value) + ")";
 };
 
 WDAPI.ElementList = function(ref) {
@@ -381,7 +383,10 @@ WDAPI.ElementList.prototype.getSize = function() {
 WDAPI.Utils = function() {
 };
 
-
+WDAPI.Utils.isElementPresent = function(how, what) {
+    var driver = new WDAPI.Driver();
+    return driver.ref + "->findElements(" + WDAPI.Driver.searchContext(how, what) + ")";
+};
 
 
 //////////////////////////////////////////////////////////////////////
