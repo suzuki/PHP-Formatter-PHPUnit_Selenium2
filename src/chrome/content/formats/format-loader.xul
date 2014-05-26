@@ -5,10 +5,10 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:html="http://www.w3.org/1999/xhtml">
     <script type="application/x-javascript" src="chrome://selenium-ide/content/api.js"/>
-    <script type="application/x-javascript" src="chrome://php-formatters/content/formats/php-phpunit-selenium2.js"/>
+    <script type="application/x-javascript" src="chrome://php-formatters/content/formats/php-phpunit-webdriver-facebook.js"/>
     <html:script type="application/javascript">
         var ide_api = new API();
-        ide_api.addPlugin("phpformatters@zatsubun.com");
-        ide_api.addPluginProvidedFormatter("phpformatters", "PHP / PHPUnit / PHPUnit Selenium2TestCase", "chrome://php-formatters/content/formats/php-phpunit-selenium2.js");
+        ide_api.addPlugin("phpformatters@seleniumwebdriver.com");
+        ide_api.addPluginProvidedFormatter("phpformatters", "PHP / PHPUnit / PHPUnit Webdriver Facebook", "chrome://php-formatters/content/formats/php-phpunit-webdriver-facebook.js");
     </html:script>
 </overlay>

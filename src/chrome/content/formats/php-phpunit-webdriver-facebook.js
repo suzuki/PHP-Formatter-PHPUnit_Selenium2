@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 // Selenium IDE
-// PHP Formatter for PHPUnit_Extentions_Selenium2TestCase
+// PHP Formatter for PHPUnit_Framework_TestCase
 ////////////////////////////////////////////////////////////////////////
 
 var subScriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"].getService(Components.interfaces.mozIJSSubScriptLoader);
@@ -12,13 +12,16 @@ function useSeparateEqualsForArray() {
 
 function testClassName(testName) {
     return testName.split(/[^0-9A-Za-z]+/).map(
-	function(x) {
+        function(x) {
             return capitalize(x);
-	}).join('Test');
+        }).join('')+"Test";
 }
 
 function testMethodName(testName) {
-    return "test" + testClassName(testName);
+    return "test" + testName.split(/[^0-9A-Za-z]+/).map(
+        function(x) {
+            return capitalize(x);
+        }).join('');
 }
 
 function nonBreakingSpace() {
@@ -28,9 +31,9 @@ function nonBreakingSpace() {
 function array(value) {
     var str = 'array(';
     for ( var i = 0; i < value.length; i++) {
-	str += string(value[i]);
-	if (i < value.length - 1)
-	    str += ", ";
+        str += string(value[i]);
+        if (i < value.length - 1)
+            str += ", ";
     }
     str += ')';
     return str;
@@ -41,10 +44,7 @@ Equals.prototype.toString = function() {
 };
 
 Equals.prototype.assert = function() {
-    statement = '';
-    statement += "$result = " + this.e2.toString() + ";\n";
-    statement += "$this->assertEquals(" + this.e1.toString() +", $result);";
-    return statement;
+    return "$this->assertEquals(" + this.e1.toString() +", " + this.e2.toString() +");";
 };
 
 Equals.prototype.verify = function() {
@@ -70,7 +70,7 @@ function joinExpression(expression) {
 function statement(expression) {
     var s = expression.toString();
     if (s.length == 0) {
-	return null;
+        return null;
     }
     return s + ';';
 }
@@ -97,10 +97,10 @@ function assertFalse(expression) {
 
 function verify(statement) {
     return "try {\n" +
-	indents(1) + statement + "\n" +
-	"} catch (PHPUnit_Framework_AssertionFailedError $e) {\n" +
-	indents(1) + "array_push($this->verificationErrors, $e->__toString());\n" +
-	"}";
+        indents(1) + statement + "\n" +
+        "} catch (PHPUnit_Framework_AssertionFailedError $e) {\n" +
+        indents(1) + "array_push($this->verificationErrors, $e->__toString());\n" +
+        "}";
 }
 
 function verifyTrue(expression) {
@@ -142,7 +142,7 @@ function echo(message) {
 
 function formatComment(comment) {
     return comment.comment.replace(/.+/mg, function(str) {
-	return "// " + str;
+    return "// " + str;
     });
 }
 
@@ -157,18 +157,18 @@ function formatSuite(testSuite, filename) {
     suiteClass = suiteClass[0].toUpperCase() + suiteClass.substring(1);
 
     var formattedSuite = "<phpunit>\n"
-	+ indents(1) + "<testsuites>\n"
-	+ indents(2) + "<testsuite name='" + suiteClass + "'>\n";
+        + indents(1) + "<testsuites>\n"
+        + indents(2) + "<testsuite name='" + suiteClass + "'>\n";
 
     for (var i = 0; i < testSuite.tests.length; ++i) {
-	var testClass = testSuite.tests[i].getTitle();
-	formattedSuite += indents(3)
+        var testClass = testSuite.tests[i].getTitle();
+        formattedSuite += indents(3)
             + "<file>" + testClass + "<file>\n";
     }
 
     formattedSuite += indents(2) + "</testsuite>\n"
-	+ indents(1) + "</testsuites>\n"
-	+ "</phpunit>\n";
+    + indents(1) + "</testsuites>\n"
+    + "</phpunit>\n";
 
     return formattedSuite;
 }
@@ -178,12 +178,13 @@ function defaultExtension() {
 }
 
 this.options = {
-    receiver: '',
-    environment: '*chrome',
-    extendedClass: 'PHPUnit_Extensions_Selenium2TestCase',
-    indent: '4',
+    receiver: '$this->webDriver',
+    environment: '*firefox',
+    extendedClass: 'PHPUnit_Framework_TestCase',
+    remoteWebDriver: 'http://localhost:4444/wd/hub',
+    indent: '2',
     initialIndents: '2',
-    showSelenese: 'false',
+    showSelenese: 'true',
     defaultExtension: 'php'
 };
 
@@ -197,21 +198,31 @@ options.header =
     + indents(1) + " */\n"
     + indents(1) + "public function setUp()\n"
     + indents(1) + "{\n"
-    + indents(2) + "\$this->setBrowser('firefox');\n"
-    + indents(2) + "\$this->setHost('127.0.0.1');\n"
-    + indents(2) + "\$this->setPort(4444);\n"
-    + indents(2) + "\$this->setBrowserUrl('${baseURL}');\n"
+    + indents(2) + "$this->webDriver = RemoteWebDriver::create("
+    + indents(3) + "$_SERVER['SELENIUM']['HUB'],"
+    + indents(3) + "$_SERVER['SELENIUM']['CAPABILITIES']"
+    + indents(2) + ");"
+    + indents(2) + "$this->baseUrl = $_SERVER['SELENIUM']['BASE_URL'];"
     + indents(1) + "}\n"
-    + indents(1) + "\n"
-    + indents(1) + "/** \n"
-    + indents(1) + " * Method ${methodName} \n"
-    + indents(1) + " * @test \n"
-    + indents(1) + " */ \n"
+    + indents(0) + "\n"
+    + indents(1) + "/**\n"
+    + indents(1) + " * Method ${methodName}\n"
+    + indents(1) + " * @test\n"
+    + indents(1) + " */\n"
     + indents(1) + "public function ${methodName}()\n"
     + indents(1) + "{\n";
 
 options.footer =
     indents(1) + "}\n"
+    + indents(1) + "/**\n"
+    + indents(1) + " * Close the current window.\n"
+    + indents(1) + " *\n"
+    + indents(1) + " * @return WebDriver The current instance.\n"
+    + indents(1) + " */\n"
+    + indents(1) + "public function tearDown()\n"
+    + indents(1) + "{\n"
+    + indents(2) + "$this->webDriver->close();\n"
+    + indents(1) + "}\n"
     + "\n"
     + "}\n";
 
@@ -219,36 +230,53 @@ options.footer =
 this.configForm =
     '<description>Variable for Selenium instance</description>' +
     '<textbox id="options_receiver" />' +
+    '<description>RemoteWebDriver</description>' +
+    '<textbox id="options_remoteWebDriver" />' +
+    '<description>Header</description>' +
+    '<textbox id="options_header" multiline="true" flex="1" rows="4" />' +
     '<description>Environment</description>' +
     '<textbox id="options_environment" />' +
     '<description>Extended class</description>' +
     '<textbox id="options_extendedClass" />' +
-    '<checkbox id="options_showSelenese" label="Show Selenese"/>';
+    '<checkbox id="options_showSelenese" label="Show Selenese"/>'+
+    '<description>Indent</description>' +
+    '<menulist id="options_indent"><menupopup>' +
+    '<menuitem label="Tab" value="tab"/>' +
+    '<menuitem label="1 space" value="1"/>' +
+    '<menuitem label="2 spaces" value="2"/>' +
+    '<menuitem label="3 spaces" value="3"/>' +
+    '<menuitem label="4 spaces" value="4"/>' +
+    '<menuitem label="5 spaces" value="5"/>' +
+    '<menuitem label="6 spaces" value="6"/>' +
+    '<menuitem label="7 spaces" value="7"/>' +
+    '<menuitem label="8 spaces" value="8"/>' +
+    '</menupopup>' +
+    '</menulist>';
 
-this.name = 'PHPUnit (Selenium2TestCase)';
+this.name = 'PHPUnit (Framework_TestCase)';
 this.testcaseExtension = '.php';
 this.suiteExtension = '.xml';
 this.webdriver = true;
 
 WDAPI.Driver = function() {
-    this.ref = '$this';
+    this.ref = '$this->webDriver';
 };
 
 WDAPI.Driver.searchContext = function(locatorType, locator) {
     var locatorString = xlateArgument(locator);
     switch (locatorType) {
-    case 'xpath':
-	return '$this->byXPath(' + locatorString + ')';
-    case 'css':
-	return '$this->byCssSelector(' + locatorString + ')';
-    case 'id':
-	return '$this->byId(' + locatorString + ')';
-    case 'link':
-	return '$this->byLinkText(' + locatorString + ')';
-    case 'name':
-	return '$this->byName(' + locatorString + ')';
-    case 'tag_name':
-	return '$this->by("tag name", ' + locatorString + ')';
+        case 'xpath':
+            return 'WebDriverBy::xpath(' + locatorString + ')';
+        case 'css':
+            return 'WebDriverBy::cssSelector(' + locatorString + ')';
+        case 'id':
+            return 'WebDriverBy::id(' + locatorString + ')';
+        case 'link':
+            return 'WebDriverBy::linkText(' + locatorString + ')';
+        case 'name':
+            return 'WebDriverBy::name(' + locatorString + ')';
+        case 'tag_name':
+            return 'WebDriverBy::tagName(' + locatorString + ')';
     }
     throw 'Error: unknown strategy [' + locatorType + '] for locator [' + locator + ']';
 };
@@ -262,30 +290,27 @@ WDAPI.Driver.prototype.close = function() {
 };
 
 WDAPI.Driver.prototype.findElement = function(locatorType, locator) {
-    //return new WDAPI.Element(this.ref + "->findElement(" + WDAPI.Driver.searchContext(locatorType, locator) + ")");
-    return new WDAPI.Element(WDAPI.Driver.searchContext(locatorType, locator));
+    return new WDAPI.Element(this.ref + "->findElement(" + WDAPI.Driver.searchContext(locatorType, locator) + ")");
 };
 
 WDAPI.Driver.prototype.findElements = function(locatorType, locator) {
-    //return new WDAPI.ElementList(this.ref + "->findElements(" + WDAPI.Driver.searchContext(locatorType, locator) + ")");
-    return new WDAPI.ElementList(WDAPI.Driver.searchContext(locatorType, locator));
+    return new WDAPI.ElementList(this.ref + "->findElements(" + WDAPI.Driver.searchContext(locatorType, locator) + ")");
 };
 
 WDAPI.Driver.prototype.getCurrentUrl = function() {
-    return this.ref + "->url()";
+    return this.ref + "->getCurrentURL()";
 };
 
 WDAPI.Driver.prototype.get = function(url) {
     if (url.length > 1 && (url.substring(1,8) == "http://" || url.substring(1,9) == "https://")) { // url is quoted
-	return this.ref + "->url(" + url + ")";
+        return this.ref + "->get(" + url + ")";
     } else {
-	//return this.ref + "->url($this->baseUrl + " + url + ")";
-	return this.ref + "->url(" + url + ")";
+        return this.ref + "->get($this->baseUrl . " + url + ")";
     }
 };
 
 WDAPI.Driver.prototype.getTitle = function() {
-    return this.ref + "->title()";
+    return this.ref + "->getTitle()";
 };
 
 WDAPI.Driver.prototype.refresh = function() {
@@ -340,7 +365,7 @@ WDAPI.Element.prototype.select = function(label) {
 };
 
 WDAPI.Element.prototype.setValue = function(value) {
-    return this.ref + "->value(" + xlateArgument(value) + ")";
+    return this.ref + "->sendKeys(" + xlateArgument(value) + ")";
 };
 
 WDAPI.ElementList = function(ref) {
@@ -358,7 +383,10 @@ WDAPI.ElementList.prototype.getSize = function() {
 WDAPI.Utils = function() {
 };
 
-
+WDAPI.Utils.isElementPresent = function(how, what) {
+    var driver = new WDAPI.Driver();
+    return driver.ref + "->findElements(" + WDAPI.Driver.searchContext(how, what) + ")";
+};
 
 
 //////////////////////////////////////////////////////////////////////
@@ -371,8 +399,9 @@ SeleniumWebDriverAdaptor.prototype.isTextPresent = function() {
 }
 
 SeleniumWebDriverAdaptor.prototype.type = function(elementLocator, text) {
-  var locator = this._elementLocator(this.rawArgs[0]);
-  var driver = new WDAPI.Driver();
-  var webElement = driver.findElement(locator.type, locator.string);
-  return webElement.setValue(this.rawArgs[1]);
+    var locator = this._elementLocator(this.rawArgs[0]);
+    var driver = new WDAPI.Driver();
+    var webElement = driver.findElement(locator.type, locator.string);
+    return webElement.setValue(this.rawArgs[1]);
 };
+

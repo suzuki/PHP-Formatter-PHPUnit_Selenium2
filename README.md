@@ -1,7 +1,7 @@
-PHP-Formatter-PHPUnit_Selenium2
-===============================
+PHP-Formatter-PHPUnit_Facebook_Webdriver
+========================================
 
-Selnium IDE: PHP Formatter for PHPUnit_Extensions_Selenium2TestCase
+Selnium IDE: PHP Formatter for PHPUnit_Framework_TestCase
 
 These codes are inspire from [Webdriver-PHP-Formatter](https://github.com/jupeter/Webdriver-PHP-Formatter)
 
@@ -15,13 +15,13 @@ Build xpi file.
 
 
 ### Install to Firefox browser
-1. Drag and drop `build/phpformatter@zatsubun.com.xpi` file to your Firefox browser.
+1. Drag and drop `build/phpformatter@seleniumwebdriver.com.xpi` file to your Firefox browser.
 
 
 ### Make Test
 1. Open Selenium IDE.
 2. Make a testcase.
-3. Export a testcase, select `PHP / PHPUnit / PHPUnit Selenium2TestCase` format.
+3. Export a testcase, select `PHP / PHPUnit / PHPUnit Selenium Webdriver` format.
 4. Save your a testcase.
 
 
